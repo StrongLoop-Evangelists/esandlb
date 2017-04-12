@@ -46,6 +46,30 @@ module.exports = function(Cat) {
 		});
 
 	});
-	
+
+
+	Cat.search = function(text, cb) {
+		console.log('passed '+text);
+		client.search({index:'cat', type:'cat', q:text}).then(function(resp) {
+			console.log(resp.hits);
+			let results = [];
+			resp.hits.hits.forEach(function(h) {
+				results.push(h._source);
+			});
+			cb(null, results);
+			//cb(null, ['d','e']);
+		}, function(err) {
+			throw new Error(err);
+		});
+	}
+
+	Cat.remoteMethod('search', {
+		accepts: {arg: 'text', type: 'string'},
+		returns: {arg: 'results', type: 'array'},
+		http:{
+			verb:'get'
+		}
+	});
+
 };
 
